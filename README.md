@@ -9,8 +9,7 @@ This image will have you running & collecting stats in just a few minutes.
 
 ## Quick Start
 
-```sudo fig start
-```
+`sudo fig start`
 
 This starts a Docker container named: **graphite**
 
@@ -82,10 +81,10 @@ Then update the root user's profile at: [http://localhost/admin/auth/user/1/](ht
 Read up on Graphite's [post-install tasks](https://graphite.readthedocs.org/en/latest/install.html#post-install-tasks).
 Focus on the [storage-schemas.conf](https://graphite.readthedocs.org/en/latest/config-carbon.html#storage-schemas-conf)
 
-1. Stop the container `docker stop graphite`.
+1. Stop the container `fig stop`.
 1. Find the configuration files on the host by inspecting the container `docker inspect graphite`.
 1. Update the desired config files.
-1. Restart the container `docker start graphite`.
+1. Restart the container `fig start`.
 
 **Note**: If you change settings in `/opt/graphite/conf/storage-schemas.conf`
 be sure to delete the old whisper files under `/opt/graphite/storage/whisper/`.
