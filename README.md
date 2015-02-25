@@ -9,13 +9,7 @@ This image will have you running & collecting stats in just a few minutes.
 
 ## Quick Start
 
-```sh
-sudo docker run -d \
-  --name graphite \
-  -p 80:80 \
-  -p 2003:2003 \
-  -p 8125:8125/udp \
-  hopsoft/graphite-statsd
+```sudo fig start
 ```
 
 This starts a Docker container named: **graphite**
@@ -24,7 +18,7 @@ That's it, you're done ... almost.
 
 ### Includes the following components
 
-* [Nginx](http://nginx.org/) - reverse proxies the graphite dashboard
+* [apache](http://httpd.apache.org/) - serves the graphite dashboard
 * [Graphite](http://graphite.readthedocs.org/en/latest/) - front-end dashboard
 * [Carbon](http://graphite.readthedocs.org/en/latest/carbon-daemons.html) - back-end
 * [Statsd](https://github.com/etsy/statsd/wiki) - UDP based back-end proxy
@@ -33,7 +27,7 @@ That's it, you're done ... almost.
 
 | Host | Container | Service |
 | ---- | --------- | ------- |
-|   80 |        80 | nginx   |
+|   80 |        80 | apache2 |
 | 2003 |      2003 | carbon  |
 | 8125 |      8125 | statsd  |
 
@@ -42,7 +36,7 @@ That's it, you're done ... almost.
 | Host              | Container                  | Notes                           |
 | ----------------- | -------------------------- | ------------------------------- |
 | DOCKER ASSIGNED   | /opt/graphite              | graphite config & stats storage |
-| DOCKER ASSIGNED   | /etc/nginx                 | nginx config                    |
+| DOCKER ASSIGNED   | /etc/apache2               | apache2 config                  |
 | DOCKER ASSIGNED   | /opt/statsd                | statsd config                   |
 | DOCKER ASSIGNED   | /etc/logrotate.d           | logrotate config                |
 | DOCKER ASSIGNED   | /var/log                   | log files                       |
@@ -156,6 +150,7 @@ Build the image yourself.
 **Note**: Pay attention to the forwarded ports in the [Vagrantfile](https://github.com/hopsoft/docker-graphite-statsd/blob/master/Vagrantfile).
 
 ### Linux
-
+1. Install Python pip (https://pip.pypa.io/en/latest/installing.html)
+1. Install fig (sudo pip install fig)
 1. `git clone https://github.com/hopsoft/docker-graphite-statsd.git`
 1. `sudo docker build -t hopsoft/graphite-statsd ./docker-graphite-statsd`
