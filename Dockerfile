@@ -7,13 +7,14 @@ RUN apt-get -y update\
 
 # dependencies
 RUN apt-get -y --force-yes install vim\
- nginx\
+ apache2-mpm-worker\
+ libapache2-mod-wsgi\
  python-dev\
  python-flup\
  python-pip\
  expect\
- git\
  memcached\
+ git\
  sqlite3\
  libcairo2\
  libcairo2-dev\
@@ -22,9 +23,9 @@ RUN apt-get -y --force-yes install vim\
  nodejs
 
 # python dependencies
-RUN pip install django==1.3\
- python-memcached==1.53\
+RUN pip install django==1.4.8\
  django-tagging==0.3.1\
+ python-memcached==1.53\
  whisper==0.9.12\
  twisted==11.1.0\
  txAMQP==0.6.2
@@ -51,17 +52,24 @@ RUN git clone -b v0.7.2 https://github.com/etsy/statsd.git /opt/statsd
 ADD conf/statsd/config.js /opt/statsd/config.js
 
 # config nginx
-RUN rm /etc/nginx/sites-enabled/default
-ADD conf/nginx/nginx.conf /etc/nginx/nginx.conf
-ADD conf/nginx/graphite.conf /etc/nginx/sites-available/graphite.conf
-RUN ln -s /etc/nginx/sites-available/graphite.conf /etc/nginx/sites-enabled/graphite.conf
+#RUN rm /etc/nginx/sites-enabled/default
+#ADD conf/nginx/nginx.conf /etc/nginx/nginx.conf
+#ADD conf/nginx/graphite.conf /etc/nginx/sites-available/graphite.conf
+#RUN ln -s /etc/nginx/sites-available/graphite.conf /etc/nginx/sites-enabled/graphite.conf
 
+# config apache2
+RUN rm /etc/apache2/sites-enabled/000-default.conf
+ADD conf/apache2/001-graphite.conf /etc/apache2/sites-available/001-graphite.conf
+RUN ln -s /etc/apache2/sites-available/001-graphite.conf /etc/apache2/sites-enabled/001-graphite.conf
 # init django admin
 ADD scripts/django_admin_init.exp /usr/local/bin/django_admin_init.exp
-RUN /usr/local/bin/django_admin_init.exp
+RUN LANG="en_US.UTF-8" /usr/local/bin/django_admin_init.exp
+RUN chown www-data:www-data /opt/graphite/storage/graphite.db
 
 # logging support
-RUN mkdir -p /var/log/carbon /var/log/graphite /var/log/nginx
+RUN mkdir -p /var/log/carbon /var/log/graphite /var/log/apache2
+#RUN chown www-data:www-data /var/log/graphite
+RUN chown www-data:www-data -R /opt/*
 ADD conf/logrotate /etc/logrotate.d/graphite
 
 # daemons
@@ -69,7 +77,7 @@ ADD daemons/carbon.sh /etc/service/carbon/run
 ADD daemons/carbon-aggregator.sh /etc/service/carbon-aggregator/run
 ADD daemons/graphite.sh /etc/service/graphite/run
 ADD daemons/statsd.sh /etc/service/statsd/run
-ADD daemons/nginx.sh /etc/service/nginx/run
+ADD daemons/apache2.sh /etc/service/apache2/run
 
 # cleanup
 RUN apt-get clean\
@@ -77,6 +85,6 @@ RUN apt-get clean\
 
 # defaults
 EXPOSE 80:80 2003:2003 8125:8125/udp
-VOLUME ["/opt/graphite", "/etc/nginx", "/opt/statsd", "/etc/logrotate.d", "/var/log"]
+VOLUME ["/opt/graphite", "/etc/nginx", "/opt/statsd", "/etc/logrotate.d"]
 ENV HOME /root
 CMD ["/sbin/my_init"]

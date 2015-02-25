@@ -1,0 +1,8 @@
+graphite:
+    build: .
+    ports:
+        - 80:80
+        - 2003:2003
+        - 8125:8125/udp
+    volumes:
+        - ./log:/var/log
